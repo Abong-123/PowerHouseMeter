@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Energy Meter Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-card">
+        <div class="dashboard-title">Energy Meter Dashboard</div>
+    
+        <div class="dashboard-item">
+            <span class="dashboard-label">Tegangan</span>
+            <span class="dashboard-value" id="voltage">0 <span class="dashboard-unit">V</span></span>
+        </div>
+        <div class="dashboard-item">
+            <span class="dashboard-label">Arus</span>
+            <span class="dashboard-value" id="current">0 <span class="dashboard-unit">A</span></span>
+        </div>
+        <div class="dashboard-item">
+            <span class="dashboard-label">Daya</span>
+            <span class="dashboard-value" id="power">0 <span class="dashboard-unit">W</span></span>
+        </div>
+        <div class="dashboard-item">
+            <span class="dashboard-label">Energi</span>
+            <span class="dashboard-value" id="energy">0 <span class="dashboard-unit">kWh</span></span>
+        </div>
+        <div class="dashboard-item">
+            <span class="dashboard-label">Power Factor</span>
+            <span class="dashboard-value" id="pf">0.00</span>
+        </div>
+        <div class="dashboard-item">
+            <span class="dashboard-label">Rupiah</span>
+            <span class="dashboard-value" id="rupiah">Rp <span class="dashboard-unit">0</span></span>
+        </div>
+    
+        <button id="aliranBtn" class="aliran-btn" onclick="toggleAliran()">Matikan Aliran?</button>
+        <div id="aliranStatus" class="aliran-status">Aliran Hidup</div>
+    </div>
+    <!-- Custom Modal -->
+    <div id="aliranModal" class="modal-bg" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">Konfirmasi</div>
+            <div class="modal-body" id="modalBody">Yakin?</div>
+            <div class="modal-actions">
+                <button class="modal-btn yes" onclick="confirmAliran(true)">Yes</button>
+                <button class="modal-btn no" onclick="confirmAliran(false)">Batal</button>
+            </div>
+        </div>
+    </div>
+    <script src="./script.js"></script>
+    <script>
+         const TARIF = 1352.0;
+        const API_URL = 'http://api-powerhouse.tk2b.my.id/api/iot/data';
+        const CONTROL_API_URL = 'http://api-powerhouse.tk2b.my.id/api/iot/control/ssr'; // Endpoint baru untuk kontrol SSR
+        let currentSSRState = true; // Menyimpan status SSR saat ini
+
+        async function fetchData() {
+            try {
+                const res = await fetch(API_URL + '/last');
+                const data = await res.json();
+
+                const voltage = parseFloat(data.voltage || 0).toFixed(1);
+                const current = parseFloat(data.current || 0).toFixed(2);
+                const power = parseFloat(data.power || 0).toFixed(1);
+                const energy = parseFloat(data.energy || 0).toFixed(3);
+                const pf = parseFloat(data.pf || 0).toFixed(2);
+                const rupiah = (energy * TARIF).toFixed(0);
+
+                document.getElementById('voltage').innerHTML = `${voltage} <span class="dashboard-unit">V</span>`;
+                document.getElementById('current').innerHTML = `${current} <span class="dashboard-unit">A</span>`;
+                document.getElementById('power').innerHTML = `${power} <span class="dashboard-unit">W</span>`;
+                document.getElementById('energy').innerHTML = `${energy} <span class="dashboard-unit">kWh</span>`;
+                document.getElementById('pf').textContent = pf;
+                document.getElementById('rupiah').innerHTML = `Rp <span class="dashboard-unit">${rupiah}</span>`;
+
+                // Perbarui status SSR
+                currentSSRState = data.ssr_state;
+                document.getElementById('aliranStatus').textContent = currentSSRState ? 'Aliran Hidup' : 'Aliran Mati';
+
+                // Perbarui teks tombol
+                const aliranBtn = document.getElementById('aliranBtn');
+                aliranBtn.textContent = currentSSRState ? 'Matikan Aliran?' : 'Nyalakan Aliran?';
+            } catch (error) {
+                console.error('Gagal mengambil data:', error);
+            }
+        }
+
+            function toggleAliran() {
+                // Tampilkan modal
+                const modal = document.getElementById('aliranModal');
+                modal.style.display = 'flex';
+
+                // Atur pesan modal berdasarkan status saat ini
+                const modalBody = document.getElementById('modalBody');
+                modalBody.textContent = currentSSRState ?
+                    "Anda akan mematikan aliran listrik. Yakin?" :
+                    "Anda akan menyalakan aliran listrik. Yakin?";
+            }
+
+            async function confirmAliran(confirmed) {
+                // Sembunyikan modal
+                document.getElementById('aliranModal').style.display = 'none';
+
+                if (!confirmed) return;
+
+                const newState = !currentSSRState; // Toggle state
+
+                try {
+                    // Kirim permintaan ke endpoint kontrol SSR baru
+                    const response = await fetch(CONTROL_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ state: newState })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === "success") {
+                        // Update local state and UI
+                        await fetchData();
+                    } else {
+                        throw new Error(result.error || 'Gagal mengubah status');
+                    }
+                } catch (error) {
+                    console.error('Gagal mengubah status SSR:', error);
+                    alert('Terjadi kesalahan: ' + error.message);
+                }
+            }
+        fetchData();
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>
