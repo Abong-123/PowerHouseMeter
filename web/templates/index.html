@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>⚡ ENERGY MONITOR</title>
+  <!-- Font cyberpunk modern -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      background: #0a0c0f;
+      min-height: 100vh;
+      padding: 25px 20px;
+      position: relative;
+      overflow-x: hidden;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cyberpunk grid background dengan efek glitch */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(255, 0, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Efek gradien neon bergerak */
+    body::after {
+      content: "";
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 40%, rgba(255, 0, 255, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 70% 60%, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: bgPulse 10s infinite alternate;
+    }
+
+    @keyframes bgPulse {
+      0% { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .container {
+      max-width: 1450px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Header dengan efek neon */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2.4rem, 8vw, 3.8rem);
+      font-weight: 900;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #f0f0ff 0%, #a0f0ff 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 15px #ff00ff) drop-shadow(0 0 5px #00ffff);
+      margin-bottom: 5px;
+      animation: textFlicker 4s infinite alternate;
+    }
+
+    @keyframes textFlicker {
+      0% { filter: drop-shadow(0 0 12px #ff00ff) drop-shadow(0 0 4px #00ffff); }
+      92% { filter: drop-shadow(0 0 18px #ff00ff) drop-shadow(0 0 6px #00ffff); }
+      95% { filter: drop-shadow(0 0 8px #ff00ff) drop-shadow(0 0 2px #00ffff); opacity: 0.9; }
+      100% { filter: drop-shadow(0 0 20px #ff00ff) drop-shadow(0 0 8px #00ffff); }
+    }
+
+    .header p {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 5px;
+      color: #9df;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.5);
+      display: inline-block;
+      padding: 6px 25px;
+      border: 1px solid #ff00ff;
+      border-radius: 30px;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+      margin-top: 8px;
+    }
+
+    .status-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin: 28px 0 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 500;
+      letter-spacing: 2px;
+      color: #0ff;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #0ff;
+      box-shadow: 0 0 25px #0ff, 0 0 10px #0ff;
+      animation: cyberPulse 1.5s infinite;
+    }
+
+    @keyframes cyberPulse {
+      0% { box-shadow: 0 0 15px #0ff, 0 0 5px #0ff; background: #0ff; }
+      50% { box-shadow: 0 0 35px #f0f, 0 0 15px #f0f; background: #f0f; }
+      100% { box-shadow: 0 0 15px #0ff, 0 0 5px #0ff; background: #0ff; }
+    }
+
+    /* Grid utama */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 40px;
+    }
+
+    /* Kartu cyberpunk */
+    .card {
+      background: rgba(15, 20, 30, 0.7);
+      backdrop-filter: blur(18px);
+      border: 1px solid #ff00ff80;
+      border-radius: 18px;
+      padding: 25px 20px;
+      box-shadow: 0 0 25px rgba(255, 0, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      clip-path: polygon(0% 10px, 10px 0%, calc(100% - 10px) 0%, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0% calc(100% - 10px));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 180deg, #ff00ff, #00ffff, #ff00ff, #00ffff);
+      opacity: 0.1;
+      animation: rotateGlow 8s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: #0ff;
+      box-shadow: 0 0 50px #ff00ff, 0 0 25px #00ffff;
+      transition: 0.25s;
+    }
+
+    .card > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 3px;
+      color: #c4f0ff;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      border-left: 4px solid #ff00ff;
+      padding-left: 12px;
+    }
+
+    .card-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #ffffff, #b5f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      text-shadow: 0 0 10px #ff00ff;
+      letter-spacing: 2px;
+    }
+
+    .card-unit {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #aa80ff;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+
+    .ssr-active {
+      color: #0ff;
+      text-shadow: 0 0 15px #0ff;
+      font-weight: 700;
+      letter-spacing: 3px;
+    }
+
+    .ssr-inactive {
+      color: #ff3366;
+      text-shadow: 0 0 12px #ff0044;
+      font-weight: 700;
+      letter-spacing: 3px;
+    }
+
+    /* Tabel container */
+    .table-container {
+      background: rgba(10, 15, 25, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid #ff00ff;
+      border-radius: 24px;
+      padding: 25px;
+      box-shadow: 0 0 40px rgba(255, 0, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.2);
+      overflow-x: auto;
+    }
+
+    .table-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #f0f;
+      text-shadow: 0 0 15px #f0f;
+      margin-bottom: 15px;
+    }
+
+    .refresh-btn {
+      background: transparent;
+      color: #0ff;
+      border: 2px solid #0ff;
+      padding: 12px 30px;
+      border-radius: 40px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      letter-spacing: 3px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s;
+      background: rgba(0, 255, 255, 0.08);
+      text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .refresh-btn:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 45px #0ff, 0 0 25px #f0f;
+      border-color: #f0f;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 500;
+      color: #e0f0ff;
+    }
+
+    th {
+      background: rgba(255, 0, 255, 0.2);
+      color: #fff;
+      padding: 16px 12px;
+      text-align: left;
+      font-weight: 600;
+      letter-spacing: 2px;
+      border-bottom: 2px solid #ff00ff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255, 0, 255, 0.3);
+      color: #ddd;
+    }
+
+    tr:hover {
+      background: rgba(255, 0, 255, 0.15);
+      box-shadow: inset 0 0 15px #ff00ff55;
+    }
+
+    .error {
+      color: #ff5555;
+      text-shadow: 0 0 8px red;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 650px) {
+      .card-value {
+        font-size: 2.5rem;
+      }
+      .header h1 {
+        letter-spacing: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⚡ IOT ENERGY MONITOR</h1>
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>LIVE SYNC • 2077</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">VOLTAGE</div>
+      <div class="card-value" id="voltage">--</div>
+      <div class="card-unit">VOLT (V)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">CURRENT</div>
+      <div class="card-value" id="current">--</div>
+      <div class="card-unit">AMPERE (A)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">POWER</div>
+      <div class="card-value" id="power">--</div>
+      <div class="card-unit">WATT (W)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">ENERGY</div>
+      <div class="card-value" id="energy">--</div>
+      <div class="card-unit">kWh</div>
+    </div>
+    <div class="card">
+      <div class="card-title">POWER FACTOR</div>
+      <div class="card-value" id="pf">--</div>
+      <div class="card-unit">PF</div>
+    </div>
+    <div class="card">
+      <div class="card-title">SSR STATE</div>
+      <div class="card-value" id="ssr_state">--</div>
+      <div class="card-unit">STATUS</div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+      <div class="table-title">📊 DATA LOG</div>
+      <button class="refresh-btn" onclick="fetchData()">⟳ REFRESH</button>
+    </div>
+    <table>
+      <thead>
+      <tr>
+        <th>TIME</th><th>VOLT (V)</th><th>CURR (A)</th><th>POWER (W)</th><th>ENERGY (kWh)</th><th>PF</th><th>SSR</th>
+      </tr>
+      </thead>
+      <tbody id="dataTable">
+      <tr>
+        <td colspan="7" style="text-align: center; color: #0ff;">⏳ INITIALIZING NEURAL LINK...</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Fungsi fetch data terbaru
+    async function fetchLatestData() {
+      try {
+        const response = await fetch('/api/data/latest');
+        if (response.ok) {
+          const data = await response.json();
+          updateCards(data);
+        }
+      } catch (error) {
+        console.error('Error fetching latest:', error);
+      }
+    }
+
+    // Fetch semua data
+    async function fetchData() {
+      const tbody = document.getElementById('dataTable');
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #0ff;">⟳ ACCESSING MAINFRAME...</td></tr>';
+      try {
+        const response = await fetch('/api/data?limit=50');
+        if (response.ok) {
+          const data = await response.json();
+          updateTable(data);
+          if (data.length > 0) {
+            updateCards(data[0]);
+          }
+        } else {
+          throw new Error('Response not ok');
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById('dataTable').innerHTML =
+          '<tr><td colspan="7" class="error">⚠ CONNECTION LOST • SYS FAIL</td></tr>';
+      }
+    }
+
+    function updateCards(data) {
+      if (!data) return;
+      document.getElementById('voltage').textContent = data.voltage?.toFixed(1) ?? '--';
+      document.getElementById('current').textContent = data.current?.toFixed(2) ?? '--';
+      document.getElementById('power').textContent = data.power?.toFixed(1) ?? '--';
+      document.getElementById('energy').textContent = data.energy?.toFixed(4) ?? '--';
+      document.getElementById('pf').textContent = data.pf?.toFixed(2) ?? '--';
+
+      const ssrEl = document.getElementById('ssr_state');
+      if (data.ssr_state) {
+        ssrEl.innerHTML = '<span class="ssr-active">◈ ON</span>';
+      } else {
+        ssrEl.innerHTML = '<span class="ssr-inactive">◈ OFF</span>';
+      }
+    }
+
+    function updateTable(data) {
+      const tbody = document.getElementById('dataTable');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #aaa;">NO DATA STREAMS</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(item => {
+        const timeStr = item.created_at ? new Date(item.created_at).toLocaleString('id-ID') : '--:--';
+        return `
+                <tr>
+                  <td>${timeStr}</td>
+                  <td>${item.voltage?.toFixed(1) ?? '--'}</td>
+                  <td>${item.current?.toFixed(2) ?? '--'}</td>
+                  <td>${item.power?.toFixed(1) ?? '--'}</td>
+                  <td>${item.energy?.toFixed(4) ?? '--'}</td>
+                  <td>${item.pf?.toFixed(2) ?? '--'}</td>
+                  <td>${item.ssr_state ? '<span class="ssr-active">✓ ON</span>' : '<span class="ssr-inactive">✗ OFF</span>'}</td>
+                </tr>
+              `;
+      }).join('');
+    }
+
+    // Auto refresh tiap 5 detik untuk data terbaru
+    setInterval(fetchLatestData, 5000);
+
+    // Inisialisasi
+    window.addEventListener('load', () => {
+      fetchData();
+      fetchLatestData();
+    });
+
+    // Expose fetchData agar tombol bisa memanggil
+    window.fetchData = fetchData;
+  })();
+</script>
+</body>
+</html>
